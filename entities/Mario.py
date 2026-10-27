@@ -35,7 +35,11 @@ class Mario(EntityBase):
             spriteCollection["mario_big_idle"].image,
             spriteCollection["mario_big_jump"].image,
         )
-        self.camera = Camera(self.rect, self)
+        self.camera = Camera(self.rect, self, level.levelLength)
+        # Animacje trzymane jako atrybuty: powerup() i sciezka obrazen
+        # (kurczenie duzego Mario) musza do nich docierzec po stworzeniu.
+        self.smallAnimation = smallAnimation
+        self.bigAnimation = bigAnimation
         self.sound = sound
         self.input = Input(self)
         self.inAir = False
@@ -127,7 +131,7 @@ class Mario(EntityBase):
                 self.gameOver()
             elif self.powerUpState == 1:
                 self.powerUpState = 0
-                self.traits['goTrait'].updateAnimation(smallAnimation)
+                self.traits['goTrait'].updateAnimation(self.smallAnimation)
                 x, y = self.rect.x, self.rect.y
                 self.rect = pygame.Rect(x, y + 32, 32, 32)
                 self.invincibilityFrames = 60
@@ -181,6 +185,6 @@ class Mario(EntityBase):
         if self.powerUpState == 0:
             if powerupID == 1:
                 self.powerUpState = 1
-                self.traits['goTrait'].updateAnimation(bigAnimation)
+                self.traits['goTrait'].updateAnimation(self.bigAnimation)
                 self.rect = pygame.Rect(self.rect.x, self.rect.y-32, 32, 64)
                 self.invincibilityFrames = 20

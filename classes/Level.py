@@ -85,21 +85,22 @@ class Level:
                 self.entityList.remove(entity)
 
     def drawLevel(self, camera):
-        try:
-            for y in range(0, 15):
-                for x in range(0 - int(camera.pos.x + 1), 20 - int(camera.pos.x - 1)):
-                    if self.level[y][x].sprite is not None:
-                        if self.level[y][x].sprite.redrawBackground:
-                            self.screen.blit(
-                                self.sprites.spriteCollection.get("sky").image,
-                                ((x + camera.pos.x) * 32, y * 32),
-                            )
-                        self.level[y][x].sprite.drawSprite(
-                            x + camera.pos.x, y, self.screen
+        for y in range(0, 15):
+            for x in range(0 - int(camera.pos.x + 1), 20 - int(camera.pos.x - 1)):
+                # Kafel poza prawym końcem poziomu rysowany jako ostatnia
+                # kolumna (clamp do levelLength-1) — bez IndexError, który
+                # wcześniej cicho przerywał pętlę przed updateEntities.
+                gx = max(0, min(x, self.levelLength - 1))
+                if self.level[y][gx].sprite is not None:
+                    if self.level[y][gx].sprite.redrawBackground:
+                        self.screen.blit(
+                            self.sprites.spriteCollection.get("sky").image,
+                            ((x + camera.pos.x) * 32, y * 32),
                         )
-            self.updateEntities(camera)
-        except IndexError:
-            return
+                    self.level[y][gx].sprite.drawSprite(
+                        x + camera.pos.x, y, self.screen
+                    )
+        self.updateEntities(camera)
 
     def addCloudSprite(self, x, y):
         try:

@@ -8,18 +8,14 @@ class EntityCollider:
         return CollisionState(False, False)
 
     def determineSide(self, rect1, rect2):
-        if (
-            rect1.collidepoint(rect2.bottomleft)
-            or rect1.collidepoint(rect2.bottomright)
-            or rect1.collidepoint(rect2.midbottom)
-        ):
-            if rect2.collidepoint(
-                (rect1.midleft[0] / 2, rect1.midleft[1] / 2)
-            ) or rect2.collidepoint((rect1.midright[0] / 2, rect1.midright[1] / 2)):
-                return CollisionState(True, False)
-            else:
-                if self.entity.vel.y > 0:
-                    return CollisionState(True, True)
+        # rect1: cel kolizji, rect2: encja-właściciel kolidera.
+        # Encja jest "na wierzchu" celu, gdy jej górna krawędź jest nad
+        # górną krawędzią celu, a dolna krawędź weszła w cel płytko
+        # (mniej niż wysokość celu) — czyli spadła z góry, a nie
+        # uderzyła w bok albo od dołu (stomp vs. kolizja boczna).
+        penetration = rect2.bottom - rect1.top
+        if rect2.top < rect1.top and 0 < penetration < rect1.height:
+            return CollisionState(True, True)
         return CollisionState(True, False)
 
 
