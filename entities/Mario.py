@@ -62,6 +62,9 @@ class Mario(EntityBase):
         self.pauseObj = Pause(screen, self, dashboard, base_dir)
 
     def update(self):
+        # Wejście na pierwszym miejscu (P1.5): direction/jump/boost z tej
+        # klatki sa juz znane, gdy fizyka sie uruchamia.
+        self.input.checkForInput()
         if self.invincibilityFrames > 0:
             self.invincibilityFrames -= 1
         self.updateTraits()
@@ -69,7 +72,6 @@ class Mario(EntityBase):
         self.camera.move()
         self.applyGravity()
         self.checkEntityCollision()
-        self.input.checkForInput()
 
     def moveMario(self):
         self.rect.y += self.vel.y
@@ -78,7 +80,10 @@ class Mario(EntityBase):
         self.collision.checkX()
 
     def checkEntityCollision(self):
-        for ent in self.levelObj.entityList:
+        # list(): collect (monety itp.) usuwa encje z entityList podczas
+        # iteracji - bez kopii druga moneta w tej samej klatce ginalaby
+        # (P1.6).
+        for ent in list(self.levelObj.entityList):
             collisionState = self.EntityCollider.check(ent)
             if collisionState.isColliding:
                 if ent.type == "Item":
