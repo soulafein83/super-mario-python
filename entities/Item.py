@@ -1,12 +1,16 @@
 from copy import copy
+from pathlib import Path
 
 from classes.Dashboard import Dashboard
 from classes.Maths import Vec2D
 
 
 class Item(Dashboard):
-    def __init__(self, collection, screen, x, y):
-        super(Item, self).__init__("./img/font.png", 8, screen)
+    def __init__(self, collection, screen, x, y, base_dir=None):
+        font_path = (
+            str(Path(base_dir) / "img/font.png") if base_dir else "./img/font.png"
+        )
+        super(Item, self).__init__(font_path, 8, screen)
         self.ItemPos = Vec2D(x, y)
         self.itemVel = Vec2D(0, 0)
         self.screen = screen

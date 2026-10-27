@@ -1,11 +1,14 @@
 import pygame
+from pathlib import Path
 
 
 class Spritesheet(object):
     def __init__(self, filename):
         try:
-            self.sheet = pygame.image.load(filename)
-            self.sheet = pygame.image.load(filename)
+            path = Path(filename)
+            if not path.exists():
+                raise FileNotFoundError(f"Image not found: {filename}")
+            self.sheet = pygame.image.load(str(path))
             if not self.sheet.get_alpha():
                 self.sheet.set_colorkey((0, 0, 0))
         except pygame.error:

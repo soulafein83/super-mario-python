@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from classes.Animation import Animation
 from classes.Sprite import Sprite
@@ -6,16 +7,21 @@ from classes.Spritesheet import Spritesheet
 
 
 class Sprites:
-    def __init__(self):
+    def __init__(self, base_dir=None):
+        sprites_dir = Path(base_dir) / "sprites" if base_dir else Path("./sprites")
+        self.base_dir = base_dir
         self.spriteCollection = self.loadSprites(
             [
-                "./sprites/Mario.json",
-                "./sprites/Goomba.json",
-                "./sprites/Koopa.json",
-                "./sprites/Animations.json",
-                "./sprites/BackgroundSprites.json",
-                "./sprites/ItemAnimations.json",
-                "./sprites/RedMushroom.json"
+                str(sprites_dir / name)
+                for name in (
+                    "Mario.json",
+                    "Goomba.json",
+                    "Koopa.json",
+                    "Animations.json",
+                    "BackgroundSprites.json",
+                    "ItemAnimations.json",
+                    "RedMushroom.json",
+                )
             ]
         )
 
@@ -24,7 +30,10 @@ class Sprites:
         for url in urlList:
             with open(url) as jsonData:
                 data = json.load(jsonData)
-                mySpritesheet = Spritesheet(data["spriteSheetURL"])
+                sheet_path = data["spriteSheetURL"]
+                if self.base_dir and not Path(sheet_path).is_absolute():
+                    sheet_path = str(Path(self.base_dir) / sheet_path)
+                mySpritesheet = Spritesheet(sheet_path)
                 dic = {}
                 if data["type"] == "background":
                     for sprite in data["sprites"]:

@@ -2,12 +2,13 @@ import json
 import sys
 import os
 import pygame
+from pathlib import Path
 
 from classes.Spritesheet import Spritesheet
 
 
 class Menu:
-    def __init__(self, screen, dashboard, level, sound):
+    def __init__(self, screen, dashboard, level, sound, base_dir=None):
         self.screen = screen
         self.sound = sound
         self.start = False
@@ -21,7 +22,10 @@ class Menu:
         self.inChoosingLevel = False
         self.dashboard = dashboard
         self.levelCount = 0
-        self.spritesheet = Spritesheet("./img/title_screen.png")
+        self.base_dir = base_dir
+
+        img_path = Path(base_dir) / "img" if base_dir else Path("./img")
+        self.spritesheet = Spritesheet(str(img_path / "title_screen.png"))
         self.menu_banner = self.spritesheet.image_at(
             0,
             60,
@@ -37,7 +41,9 @@ class Menu:
         self.menu_dot2 = self.spritesheet.image_at(
             20, 150, 2, colorkey=[255, 0, 220], ignoreTileSize=True
         )
-        self.loadSettings("./settings.json")
+        self.loadSettings(
+            str(Path(base_dir) / "settings.json") if base_dir else "./settings.json"
+        )
 
     def update(self):
         self.checkInput()
@@ -68,8 +74,8 @@ class Menu:
 
     def loadSettings(self, url):
         try:
-            with open(url) as jsonData:
-                data = json.load(jsonData)
+            with open(url) as json_data:
+                data = json.load(json_data)
                 if data["sound"]:
                     self.music = True
                     self.sound.music_channel.play(self.sound.soundtrack, loops=-1)
@@ -85,7 +91,7 @@ class Menu:
             self.music = False
             self.sound.allowSFX = False
             self.sfx = False
-            self.saveSettings("./settings.json")
+            self.saveSettings(url)
 
     def saveSettings(self, url):
         data = {"sound": self.music, "sfx": self.sfx}
@@ -165,7 +171,7 @@ class Menu:
         offset = 75
         textOffset = 90
         for i, levelName in enumerate(self.loadLevelNames()):
-            if self.currSelectedLevel == i+1:
+            if self.currSelectedLevel == i + 1:
                 color = (255, 255, 255)
             else:
                 color = (150, 150, 150)
@@ -178,13 +184,12 @@ class Menu:
                 j += 1
 
     def loadLevelNames(self):
-        files = []
+        levels_dir = Path(self.base_dir) / "levels" if self.base_dir else Path("./levels")
         res = []
-        for r, d, f in os.walk("./levels"):
-            for file in f:
-                files.append(os.path.join(r, file))
-        for f in files:
-            res.append(os.path.split(f)[1].split(".")[0])
+        if levels_dir.exists():
+            for file in sorted(levels_dir.iterdir()):
+                if file.is_file() and file.suffix == ".json":
+                    res.append(file.stem)
         self.levelCount = len(res)
         return res
 
@@ -199,7 +204,6 @@ class Menu:
                     if self.inChoosingLevel or self.inSettings:
                         self.inChoosingLevel = False
                         self.inSettings = False
-                        self.__init__(self.screen, self.dashboard, self.level, self.sound)
                     else:
                         pygame.quit()
                         sys.exit()
@@ -212,7 +216,7 @@ class Menu:
                         self.state -= 1
                 elif event.key == pygame.K_DOWN or event.key == pygame.K_j:
                     if self.inChoosingLevel:
-                        if self.currSelectedLevel+3 <= self.levelCount:
+                        if self.currSelectedLevel + 3 <= self.levelCount:
                             self.currSelectedLevel += 3
                             self.drawLevelChooser()
                     if self.state < 2:
@@ -230,8 +234,8 @@ class Menu:
                         self.inChoosingLevel = False
                         self.dashboard.state = "start"
                         self.dashboard.time = 0
-                        self.level.loadLevel(self.levelNames[self.currSelectedLevel-1])
-                        self.dashboard.levelName = self.levelNames[self.currSelectedLevel-1].split("Level")[1]
+                        self.level.loadLevel(self.levelNames[self.currSelectedLevel - 1])
+                        self.dashboard.levelName = self.levelNames[self.currSelectedLevel - 1].split("Level")[1]
                         self.start = True
                         return
                     if not self.inSettings:
@@ -251,7 +255,9 @@ class Menu:
                             else:
                                 self.sound.music_channel.play(self.sound.soundtrack, loops=-1)
                                 self.music = True
-                            self.saveSettings("./settings.json")
+                            self.saveSettings(
+                                str(Path(self.base_dir) / "settings.json") if self.base_dir else "./settings.json"
+                            )
                         elif self.state == 1:
                             if self.sfx:
                                 self.sound.allowSFX = False
@@ -259,7 +265,9 @@ class Menu:
                             else:
                                 self.sound.allowSFX = True
                                 self.sfx = True
-                            self.saveSettings("./settings.json")
+                            self.saveSettings(
+                                str(Path(self.base_dir) / "settings.json") if self.base_dir else "./settings.json"
+                            )
                         elif self.state == 2:
                             self.inSettings = False
         pygame.display.update()

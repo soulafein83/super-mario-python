@@ -5,7 +5,7 @@ from entities.Item import Item
 
 
 class CoinBox(EntityBase):
-    def __init__(self, screen, spriteCollection, x, y, sound, dashboard, gravity=0):
+    def __init__(self, screen, spriteCollection, x, y, sound, dashboard, gravity=0, base_dir=None):
         super(CoinBox, self).__init__(x, y, gravity)
         self.screen = screen
         self.spriteCollection = spriteCollection
@@ -17,7 +17,7 @@ class CoinBox(EntityBase):
         self.sound = sound
         self.dashboard = dashboard
         self.vel = 1
-        self.item = Item(spriteCollection, screen, self.rect.x, self.rect.y)
+        self.item = Item(spriteCollection, screen, self.rect.x, self.rect.y, base_dir)
 
     def update(self, cam):
         if self.alive and not self.triggered:

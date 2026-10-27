@@ -1,17 +1,20 @@
 import pygame
 import sys
+from pathlib import Path
 
 from classes.Spritesheet import Spritesheet
 from classes.GaussianBlur import GaussianBlur
 
 class Pause:
-    def __init__(self, screen, entity, dashboard):
+    def __init__(self, screen, entity, dashboard, base_dir=None):
         self.screen = screen
         self.entity = entity
         self.dashboard = dashboard
         self.state = 0
-        self.spritesheet = Spritesheet("./img/title_screen.png")
-        self.pause_srfc = GaussianBlur().filter(self.screen, 0, 0, 640, 480)
+        self.spritesheet = Spritesheet(
+            str(Path(base_dir) / "img/title_screen.png") if base_dir else "./img/title_screen.png"
+        )
+        self.pause_srfc = GaussianBlur().apply(self.screen, 0, 0, 640, 480)
         self.dot = self.spritesheet.image_at(
             0, 150, 2, colorkey=[255, 0, 220], ignoreTileSize=True
         )
@@ -56,4 +59,4 @@ class Pause:
                         self.state += 1
 
     def createBackgroundBlur(self):
-        self.pause_srfc = GaussianBlur().filter(self.screen, 0, 0, 640, 480)
+        self.pause_srfc = GaussianBlur().apply(self.screen, 0, 0, 640, 480)

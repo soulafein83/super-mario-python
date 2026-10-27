@@ -1,4 +1,5 @@
 import pygame
+from pathlib import Path
 from classes.Dashboard import Dashboard
 from classes.Level import Level
 from classes.Menu import Menu
@@ -7,6 +8,7 @@ from entities.Mario import Mario
 
 
 windowSize = 640, 480
+BASE_DIR = Path(__file__).resolve().parent
 
 
 def main():
@@ -14,15 +16,15 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode(windowSize)
     max_frame_rate = 60
-    dashboard = Dashboard("./img/font.png", 8, screen)
+    dashboard = Dashboard(str(BASE_DIR / "./img/font.png"), 8, screen)
     sound = Sound()
-    level = Level(screen, sound, dashboard)
-    menu = Menu(screen, dashboard, level, sound)
+    level = Level(screen, sound, dashboard, str(BASE_DIR))
+    menu = Menu(screen, dashboard, level, sound, str(BASE_DIR))
 
     while not menu.start:
         menu.update()
 
-    mario = Mario(0, 0, level, screen, dashboard, sound)
+    mario = Mario(0, 0, level, screen, dashboard, sound, base_dir=str(BASE_DIR))
     clock = pygame.time.Clock()
 
     while not mario.restart:

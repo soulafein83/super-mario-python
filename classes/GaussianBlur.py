@@ -1,12 +1,12 @@
 import pygame
-from scipy.ndimage.filters import *
+from scipy.ndimage import gaussian_filter
 
 
 class GaussianBlur:
     def __init__(self, kernelsize=7):
         self.kernel_size = kernelsize
 
-    def filter(self, srfc, xpos, ypos, width, height):
+    def apply(self, srfc, xpos, ypos, width, height):
         nSrfc = pygame.Surface((width, height))
         pxa = pygame.surfarray.array3d(srfc)
         blurred = gaussian_filter(pxa, sigma=(self.kernel_size, self.kernel_size, 0))

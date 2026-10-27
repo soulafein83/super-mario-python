@@ -5,7 +5,7 @@ from entities.Item import Item
 
 
 class CoinBrick(EntityBase):
-    def __init__(self, screen, spriteCollection, x, y, sound, dashboard, gravity=0):
+    def __init__(self, screen, spriteCollection, x, y, sound, dashboard, gravity=0, base_dir=None):
         super(CoinBrick, self).__init__(x, y, gravity)
         self.screen = screen
         self.spriteCollection = spriteCollection
@@ -14,7 +14,7 @@ class CoinBrick(EntityBase):
         self.triggered = False
         self.sound = sound
         self.dashboard = dashboard
-        self.item = Item(spriteCollection, screen, self.rect.x, self.rect.y)
+        self.item = Item(spriteCollection, screen, self.rect.x, self.rect.y, base_dir)
 
     def update(self, cam):
         if not self.alive or self.triggered:
